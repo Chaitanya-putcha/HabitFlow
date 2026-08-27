@@ -1,17 +1,22 @@
 services:
   - type: web
     name: habitflow
-    env: python
-    pythonVersion: 3.11
+    runtime: python
     plan: free
+
     buildCommand: pip install --no-cache-dir -r requirements.txt
+
     startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 --access-logfile - run:app
+
     healthCheckPath: /health
+
     envVars:
       - key: FLASK_ENV
         value: production
+
       - key: SECRET_KEY
         generateValue: true
+
       - key: DATABASE_URL
         fromDatabase:
           name: habitflow
@@ -19,6 +24,7 @@ services:
 
 databases:
   - name: habitflow
-    engine: postgres
+    databaseName: habitflow
+    user: habitflow
+    postgresMajorVersion: 16
     plan: free
-    ipAllowList: []
