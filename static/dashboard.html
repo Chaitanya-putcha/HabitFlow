@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - HabitFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/dashboard" class="text-2xl font-bold text-blue-600">HabitFlow</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="HabitFlow.ui.toggleTheme()" class="p-2 hover:bg-gray-100 rounded-lg">🌓</button>
+                    <button onclick="showProfileModal()" class="p-2 hover:bg-gray-100 rounded-lg">👤</button>
+                    <button onclick="logout()" class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar Navigation -->
+    <div class="flex">
+        <aside class="w-64 bg-white border-r border-gray-200 min-h-screen p-6">
+            <div class="space-y-4">
+                <a href="#dashboard" onclick="showDashboard(event)" class="block px-4 py-2 rounded-lg hover:bg-blue-50 text-blue-600 font-semibold">📊 Dashboard</a>
+                <a href="#habits" onclick="showHabits(event)" class="block px-4 py-2 rounded-lg hover:bg-gray-100">🎯 Habits</a>
+                <a href="#calendar" onclick="showCalendar(event)" class="block px-4 py-2 rounded-lg hover:bg-gray-100">📅 Calendar</a>
+                <a href="#statistics" onclick="showStatistics(event)" class="block px-4 py-2 rounded-lg hover:bg-gray-100">📈 Statistics</a>
+                <a href="#categories" onclick="showCategories(event)" class="block px-4 py-2 rounded-lg hover:bg-gray-100">🏷️ Categories</a>
+                <a href="#profile" onclick="showProfile(event)" class="block px-4 py-2 rounded-lg hover:bg-gray-100">⚙️ Settings</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-auto">
+            <!-- Dashboard View -->
+            <div id="dashboardView" class="p-8 block">
+                <div class="max-w-7xl">
+                    <!-- Welcome Section -->
+                    <div class="mb-8">
+                        <h1 id="welcomeText" class="text-4xl font-bold text-gray-900 mb-2">Welcome back!</h1>
+                        <p class="text-gray-600">Here's your habit tracking progress</p>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="grid md:grid-cols-4 gap-4 mb-8">
+                        <div class="card">
+                            <div class="text-sm text-gray-600">Active Habits</div>
+                            <div id="activHabitsCount" class="text-3xl font-bold text-blue-600 mt-2">0</div>
+                        </div>
+                        <div class="card">
+                            <div class="text-sm text-gray-600">Today's Logs</div>
+                            <div id="todayLogsCount" class="text-3xl font-bold text-green-600 mt-2">0</div>
+                        </div>
+                        <div class="card">
+                            <div class="text-sm text-gray-600">Current Streak</div>
+                            <div id="currentStreakMax" class="text-3xl font-bold text-orange-600 mt-2">0</div>
+                        </div>
+                        <div class="card">
+                            <div class="text-sm text-gray-600">Total Logs</div>
+                            <div id="totalLogsCount" class="text-3xl font-bold text-purple-600 mt-2">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Add Habit Button -->
+                    <div class="mb-8">
+                        <button onclick="showAddHabitModal()" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">+ Add New Habit</button>
+                    </div>
+
+                    <!-- Weekly Progress -->
+                    <div class="card mb-8">
+                        <h2 class="text-xl font-bold mb-4">Weekly Progress</h2>
+                        <canvas id="weeklyChart" class="mb-4"></canvas>
+                    </div>
+
+                    <!-- Favorite Habits -->
+                    <div class="card mb-8">
+                        <h2 class="text-xl font-bold mb-4">Favorite Habits</h2>
+                        <div id="favoriteHabitsContainer" class="space-y-4">
+                            <p class="text-gray-500">No favorite habits yet</p>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activities -->
+                    <div class="card">
+                        <h2 class="text-xl font-bold mb-4">Recent Activities</h2>
+                        <div id="recentActivitiesContainer" class="space-y-3">
+                            <p class="text-gray-500">No activities logged yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Habits View -->
+            <div id="habitsView" class="hidden p-8">
+                <div class="max-w-7xl">
+                    <div class="flex justify-between items-center mb-8">
+                        <h1 class="text-3xl font-bold">My Habits</h1>
+                        <button onclick="showAddHabitModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">+ Add Habit</button>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="mb-6 flex gap-4">
+                        <select id="habitStatusFilter" onchange="applyHabitFilters()" class="form-select">
+                            <option value="">All Habits</option>
+                            <option value="active">Active</option>
+                            <option value="archived">Archived</option>
+                        </select>
+                        <select id="habitCategoryFilter" onchange="applyHabitFilters()" class="form-select">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+
+                    <!-- Habits Grid -->
+                    <div id="habitsContainer" class="grid md:grid-cols-3 gap-6">
+                        <div class="skeleton h-32"></div>
+                        <div class="skeleton h-32"></div>
+                        <div class="skeleton h-32"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar View -->
+            <div id="calendarView" class="hidden p-8">
+                <div class="max-w-7xl">
+                    <h1 class="text-3xl font-bold mb-8">Calendar</h1>
+                    
+                    <!-- Month/Year Navigation -->
+                    <div class="flex justify-between items-center mb-6">
+                        <button onclick="previousMonth()" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">← Previous</button>
+                        <h2 id="monthYearDisplay" class="text-2xl font-bold"></h2>
+                        <button onclick="nextMonth()" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Next →</button>
+                    </div>
+
+                    <!-- Calendar Grid -->
+                    <div class="card">
+                        <div id="calendarGrid" class="grid grid-cols-7 gap-2">
+                            <!-- Calendar will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Day Details -->
+                    <div id="dayDetailsContainer" class="mt-8 hidden">
+                        <h3 class="text-2xl font-bold mb-4">Activities for <span id="selectedDate"></span></h3>
+                        <div id="dayActivitiesContainer" class="space-y-4">
+                            <!-- Activities will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics View -->
+            <div id="statisticsView" class="hidden p-8">
+                <div class="max-w-7xl">
+                    <h1 class="text-3xl font-bold mb-8">Statistics & Analytics</h1>
+
+                    <!-- Overview Stats -->
+                    <div class="card mb-8">
+                        <h2 class="text-2xl font-bold mb-6">Overview (Last 30 Days)</h2>
+                        <div class="grid md:grid-cols-4 gap-6">
+                            <div>
+                                <p class="text-gray-600">Total Logs</p>
+                                <p id="statTotalLogs" class="text-3xl font-bold text-blue-600">0</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">Avg per Day</p>
+                                <p id="statAvgPerDay" class="text-3xl font-bold text-green-600">0</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">Completion Rate</p>
+                                <p id="statCompletionRate" class="text-3xl font-bold text-orange-600">0%</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">Top Habit</p>
+                                <p id="statTopHabit" class="text-lg font-semibold text-purple-600">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Habit Selection -->
+                    <div class="card mb-8">
+                        <h2 class="text-2xl font-bold mb-4">Habit Details</h2>
+                        <select id="statHabitSelect" onchange="loadHabitStats()" class="form-select mb-6">
+                            <option value="">Select a habit to view details</option>
+                        </select>
+
+                        <!-- Habit Stats -->
+                        <div id="habitStatsContainer" class="hidden">
+                            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                                <div>
+                                    <p class="text-sm text-gray-600">Total Logs</p>
+                                    <p id="habitTotalLogs" class="text-2xl font-bold">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Average Value</p>
+                                    <p id="habitAvgValue" class="text-2xl font-bold">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Completion %</p>
+                                    <p id="habitCompletionPct" class="text-2xl font-bold">0%</p>
+                                </div>
+                            </div>
+                            <div class="mb-8">
+                                <h3 class="font-bold mb-4">Activity Trend</h3>
+                                <canvas id="habitTrendChart" class="mb-4"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Chart -->
+                    <div class="card">
+                        <h2 class="text-2xl font-bold mb-4">Monthly Distribution</h2>
+                        <canvas id="monthlyChart" class="mb-4"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories View -->
+            <div id="categoriesView" class="hidden p-8">
+                <div class="max-w-7xl">
+                    <div class="flex justify-between items-center mb-8">
+                        <h1 class="text-3xl font-bold">Categories</h1>
+                        <button onclick="showAddCategoryModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">+ Add Category</button>
+                    </div>
+
+                    <div id="categoriesContainer" class="grid md:grid-cols-3 gap-6">
+                        <div class="skeleton h-32"></div>
+                        <div class="skeleton h-32"></div>
+                        <div class="skeleton h-32"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile/Settings View -->
+            <div id="profileView" class="hidden p-8">
+                <div class="max-w-2xl">
+                    <h1 class="text-3xl font-bold mb-8">Settings</h1>
+
+                    <!-- Profile Information -->
+                    <div class="card mb-8">
+                        <h2 class="text-xl font-bold mb-6">Profile Information</h2>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" id="profileFullName" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" id="profileEmail" class="form-input" disabled>
+                            </div>
+                        </div>
+                        <button onclick="saveProfileChanges()" class="btn btn-primary mt-4">Save Changes</button>
+                    </div>
+
+                    <!-- Preferences -->
+                    <div class="card mb-8">
+                        <h2 class="text-xl font-bold mb-6">Preferences</h2>
+                        <div class="form-group">
+                            <label class="form-label">Theme</label>
+                            <select id="themeSelect" class="form-select" onchange="updateThemePreference()">
+                                <option value="light">Light</option>
+                                <option value="dark">Dark</option>
+                                <option value="system">System</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Timezone</label>
+                            <input type="text" id="profileTimezone" class="form-input" value="UTC">
+                        </div>
+                    </div>
+
+                    <!-- Change Password -->
+                    <div class="card mb-8">
+                        <h2 class="text-xl font-bold mb-6">Security</h2>
+                        <button onclick="showChangePasswordModal()" class="btn btn-secondary">Change Password</button>
+                    </div>
+
+                    <!-- Danger Zone -->
+                    <div class="card border-red-200 bg-red-50">
+                        <h2 class="text-xl font-bold mb-6 text-red-600">Danger Zone</h2>
+                        <button onclick="showDeleteAccountModal()" class="btn btn-danger">Delete Account</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add Habit Modal -->
+    <div id="addHabitModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <h2 class="text-2xl font-bold mb-6">Add New Habit</h2>
+            <form onsubmit="handleAddHabit(event)">
+                <div class="form-group">
+                    <label class="form-label">Habit Name *</label>
+                    <input type="text" id="habitName" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea id="habitDescription" class="form-textarea"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select id="habitCategory" class="form-select">
+                        <option value="">Select a category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Habit Type</label>
+                    <select id="habitType" class="form-select">
+                        <option value="boolean">Boolean (Yes/No)</option>
+                        <option value="count">Count</option>
+                        <option value="duration">Duration</option>
+                        <option value="distance">Distance</option>
+                        <option value="numeric">Numeric</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Frequency</label>
+                    <select id="habitFrequency" class="form-select">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Goal Value</label>
+                    <input type="number" id="habitGoalValue" class="form-input" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Goal Unit</label>
+                    <input type="text" id="habitGoalUnit" class="form-input" placeholder="e.g., km, hours, pages">
+                </div>
+                <div class="flex gap-4 mt-6">
+                    <button type="submit" class="flex-1 btn btn-primary">Create Habit</button>
+                    <button type="button" onclick="closeAddHabitModal()" class="flex-1 btn btn-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Category Modal -->
+    <div id="addCategoryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <h2 class="text-2xl font-bold mb-6">Add New Category</h2>
+            <form onsubmit="handleAddCategory(event)">
+                <div class="form-group">
+                    <label class="form-label">Category Name *</label>
+                    <input type="text" id="categoryName" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Icon (Emoji)</label>
+                    <input type="text" id="categoryIcon" class="form-input" maxlength="2" placeholder="e.g., 💪">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Color (Hex)</label>
+                    <input type="color" id="categoryColor" class="form-input" value="#3b82f6">
+                </div>
+                <div class="flex gap-4 mt-6">
+                    <button type="submit" class="flex-1 btn btn-primary">Create Category</button>
+                    <button type="button" onclick="closeAddCategoryModal()" class="flex-1 btn btn-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Log Activity Modal -->
+    <div id="logActivityModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <h2 class="text-2xl font-bold mb-6">Log Activity</h2>
+            <form onsubmit="handleLogActivity(event)">
+                <div id="activityValueInput" class="form-group">
+                    <label class="form-label">Value</label>
+                    <input type="number" id="activityValue" class="form-input" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea id="activityNotes" class="form-textarea" placeholder="Add optional notes..."></textarea>
+                </div>
+                <div class="flex gap-4 mt-6">
+                    <button type="submit" class="flex-1 btn btn-primary">Log Activity</button>
+                    <button type="button" onclick="closeLogActivityModal()" class="flex-1 btn btn-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50"></div>
+
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

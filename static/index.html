@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HabitFlow - Track Your Habits</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body class="bg-white text-gray-900 transition-colors">
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold text-blue-600">HabitFlow</a>
+                </div>
+                <div id="navMenu" class="hidden md:flex space-x-8">
+                    <a href="#features" class="text-gray-600 hover:text-gray-900">Features</a>
+                    <a href="#about" class="text-gray-600 hover:text-gray-900">About</a>
+                </div>
+                <div id="authButtons" class="flex space-x-4">
+                    <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg">Login</button>
+                    <button onclick="showRegisterModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Sign Up</button>
+                </div>
+                <div id="userMenu" class="hidden flex items-center space-x-4">
+                    <a href="/dashboard" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Dashboard</a>
+                    <button onclick="logout()" class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="mainContent" class="min-h-screen">
+        <!-- Landing Page -->
+        <div id="landingPage" class="block">
+            <!-- Hero Section -->
+            <section class="py-20 px-4 text-center">
+                <div class="max-w-4xl mx-auto">
+                    <h1 class="text-5xl font-bold mb-6 text-gray-900">Build Better Habits, Track Everything</h1>
+                    <p class="text-xl text-gray-600 mb-8">HabitFlow helps you track your progress, maintain streaks, and achieve your goals with beautiful analytics and intuitive design.</p>
+                    <div class="flex justify-center space-x-4">
+                        <button onclick="showRegisterModal()" class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg font-semibold">Get Started Free</button>
+                        <button onclick="scrollTo('features')" class="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 text-lg font-semibold">Learn More</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section id="features" class="py-20 px-4 bg-gray-50">
+                <div class="max-w-6xl mx-auto">
+                    <h2 class="text-4xl font-bold text-center mb-12">Powerful Features</h2>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="bg-white p-8 rounded-lg shadow-sm">
+                            <div class="text-4xl mb-4">📊</div>
+                            <h3 class="text-xl font-semibold mb-2">Beautiful Analytics</h3>
+                            <p class="text-gray-600">Track your progress with stunning charts and detailed statistics.</p>
+                        </div>
+                        <div class="bg-white p-8 rounded-lg shadow-sm">
+                            <div class="text-4xl mb-4">🎯</div>
+                            <h3 class="text-xl font-semibold mb-2">Flexible Tracking</h3>
+                            <p class="text-gray-600">Log activities whenever you want - boolean, count, duration, and more.</p>
+                        </div>
+                        <div class="bg-white p-8 rounded-lg shadow-sm">
+                            <div class="text-4xl mb-4">🔥</div>
+                            <h3 class="text-xl font-semibold mb-2">Streak System</h3>
+                            <p class="text-gray-600">Maintain streaks and watch your consistency grow over time.</p>
+                        </div>
+                        <div class="bg-white p-8 rounded-lg shadow-sm">
+                            <div class="text-4xl mb-4">📱</div>
+                            <h3 class="text-xl font-semibold mb-2">Responsive Design</h3>
+                            <p class="text-gray-600">Use on desktop, tablet, or mobile - fully responsive experience.</p>
+                        </div>
+                        <div class="bg-white p-8 rounded-lg shadow-sm">
+                            <div class="text-4xl mb-4">🎨</div>
+                            <h3 class="text-xl font-semibold mb-2">Customizable</h3>
+                            <p class="text-gray-600">Choose from multiple themes and organize habits with custom categories.</p>
+                        </div>
+                        <div class="bg-white p-8 rounded-lg shadow-sm">
+                            <div class="text-4xl mb-4">📅</div>
+                            <h3 class="text-xl font-semibold mb-2">Calendar View</h3>
+                            <p class="text-gray-600">Visualize your activity history with an interactive calendar.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Dashboard Page (Hidden by default) -->
+        <div id="dashboardPage" class="hidden">
+            <!-- Dashboard content will be loaded here -->
+        </div>
+    </main>
+
+    <!-- Authentication Modals -->
+    <!-- Login Modal -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <h2 class="text-2xl font-bold mb-6">Login to HabitFlow</h2>
+            <form onsubmit="handleLogin(event)">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Email</label>
+                    <input type="email" id="loginEmail" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent" placeholder="you@example.com">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Password</label>
+                    <input type="password" id="loginPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent" placeholder="••••••••">
+                </div>
+                <div class="mb-6 flex items-center">
+                    <input type="checkbox" id="rememberMe" class="rounded">
+                    <label for="rememberMe" class="ml-2 text-sm text-gray-600">Remember me</label>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-semibold">Login</button>
+                <p class="text-center mt-4 text-sm text-gray-600">
+                    Don't have an account? 
+                    <button type="button" onclick="switchToRegister()" class="text-blue-600 hover:underline">Sign up</button>
+                </p>
+            </form>
+            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">✕</button>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <h2 class="text-2xl font-bold mb-6">Create Account</h2>
+            <form onsubmit="handleRegister(event)">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Full Name</label>
+                    <input type="text" id="registerName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent" placeholder="John Doe">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Email</label>
+                    <input type="email" id="registerEmail" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent" placeholder="you@example.com">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Username</label>
+                    <input type="text" id="registerUsername" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent" placeholder="username">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2">Password</label>
+                    <input type="password" id="registerPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-semibold">Create Account</button>
+                <p class="text-center mt-4 text-sm text-gray-600">
+                    Already have an account? 
+                    <button type="button" onclick="switchToLogin()" class="text-blue-600 hover:underline">Login</button>
+                </p>
+            </form>
+            <button onclick="closeRegisterModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">✕</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50"></div>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
